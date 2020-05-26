@@ -90,7 +90,7 @@ bool ContainsElement(string& text, string element)
     }
     return contains;
 }
-void DataExtraction(vector<vector<string>>& fileLines, string& path)
+void DataExtraction(vector<block>& fileLines, string& path)
 {
     ifstream file(path);
     if (file.is_open())
@@ -114,11 +114,10 @@ void DataExtraction(vector<vector<string>>& fileLines, string& path)
                 {
                     if (!notSvgLines.empty())
                     {
-                        fileLines.push_back(vector<string>{"NOTSVGSTART"});
-                        fileLines.push_back(vector<string>{std::to_string(fileLocation)});
+                        fileLines.push_back({ vector<string>{"NOTSVGSTART"},-1 });
+                        fileLines.push_back({ notSvgLines,fileLocation });
                         fileLocation++;
-                        fileLines.push_back(notSvgLines);
-                        fileLines.push_back(vector<string>{"NOTSVGEND"});
+                        fileLines.push_back({ vector<string>{"NOTSVGEND"},-1 });
                         notSvgLines.clear();
                     }
                     svgCloseTagsCounter++;
@@ -143,11 +142,10 @@ void DataExtraction(vector<vector<string>>& fileLines, string& path)
 
                     if (!svgPart.empty())
                     {
-                        fileLines.push_back(vector<string>{"SVGSTART"});
-                        fileLines.push_back(vector<string>{std::to_string(fileLocation)});
+                        fileLines.push_back({ vector<string>{"SVGSTART"},-1 });
+                        fileLines.push_back({ svgPart,fileLocation });
                         fileLocation++;
-                        fileLines.push_back(svgPart);
-                        fileLines.push_back(vector<string>{"SVGEND"});
+                        fileLines.push_back({ vector<string>{"SVGEND"},-1 });
                         svgPart.clear();
                     }
                 }
@@ -171,7 +169,7 @@ void DataExtraction(vector<vector<string>>& fileLines, string& path)
 
     return;
 }
-void DataSaving(vector<vector<string>>& fileLines, string path)
+void DataSaving(vector<block>& fileLines, string path)
 {
     ofstream file(path, std::ios::trunc);
 
@@ -179,21 +177,21 @@ void DataSaving(vector<vector<string>>& fileLines, string path)
     {
         for (size_t i = 0; i < fileLines.size(); i++)
         {
-            if (fileLines[i].size() == 1 && fileLines[i][0] == "SVGSTART" && (i+2) < fileLines.size())
+            if (fileLines[i].location == -1 && fileLines[i].data[0] == "SVGSTART" && (i+2) < fileLines.size())
             {
                 i += 2;
                 file << "<svg>\n";
-                file << Print(fileLines[i]);
+                file << Print(fileLines[i].data);
                 
             }
-            else if (fileLines[i].size() == 1 && fileLines[i][0] == "SVGEND")
+            else if (fileLines[i].location == -1 && fileLines[i].data[0] == "SVGEND")
             {
                 file << "</svg>\n";
             }
-            else if (fileLines[i].size() == 1 && fileLines[i][0] == "NOTSVGSTART" && (i + 2) < fileLines.size())
+            else if (fileLines[i].location == -1 && fileLines[i].data[0] == "NOTSVGSTART" && (i + 2) < fileLines.size())
             {
                 i += 2;
-                file << Print(fileLines[i]);
+                file << Print(fileLines[i].data);
 
             }
             
@@ -203,26 +201,15 @@ void DataSaving(vector<vector<string>>& fileLines, string path)
 
 
 }
-void ExtractSvg(vector<vector<string>>& source, vector<block>& svg)
+void ExtractSvg(vector<block>& source, vector<block>& svg)
 {
     for (size_t i = 0; i < source.size(); i++)
     {
-        if (source[i].size() == 1 && source[i][0] == "SVGSTART" && (i+2) < source.size())
+        if (source[i].location == -1 && source[i].data[0] == "SVGSTART" && (i+1) < source.size())
         {
             i++;
-
-            int position;
-            try {
-                position = stoi(source[i][0]);
-            }
-            catch (const std::invalid_argument& ia) {
-                std::cout << "Invalid argument." << ia.what() << '\n';
-            }
-            i++;
-            block data = { source[i],position };
+            block data = source[i];
             svg.push_back(data);
-
-
         }
     }
 }
@@ -230,9 +217,11 @@ int main()
 {
     //Engine engine;
     //engine.Run();
-    vector<vector<string>> file;
+
+    vector<block> file;
     vector<block> svg;
     string path = "./WorkingFiles/figures.svg";
+
     try
     {
         DataExtraction(file,path);
@@ -243,12 +232,7 @@ int main()
     }
     ExtractSvg(file, svg);
 
-    for (size_t i = 0; i < svg.size(); i++)
-    {
-        cout << "Location: " << svg[i].location << endl;
-        cout << Print(svg[i].data);
-    }
-
+    DataSaving(file, "./WorkingFiles.testSaving.svg");
 
     
 	return 0;
