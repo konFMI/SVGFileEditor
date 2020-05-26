@@ -3,7 +3,10 @@
 class Shape
 {
 	public:
-		Shape();
+		Shape()
+		{
+
+		}
 		virtual std::string ToStringPrint() = 0;
 		virtual std::string ToStringFile() = 0;
 };
