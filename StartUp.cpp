@@ -20,12 +20,7 @@ using std::ofstream;
 using std::ifstream;
 using std::for_each;
 
-template<class T>
-struct block
-{
-    vector<T> data;
-    int id;
-};
+
 void SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters)
 {
     char* memblock = &*input.begin();
@@ -232,12 +227,14 @@ void ExtractSvg(vector<block<std::string>>& source, vector<block<std::string>>& 
         }
     }
 }
-void CreateObjects(vector<block<std::string>>& svgElements, std::vector<Shape*>& objects)
+void CreateObjects(vector<block<std::string>>& svgElements, std::vector<block<Shape*>>& objects)
 {
     vector<string> tokens;
+    std::vector<Shape*> shapes;
     Shape* shape = NULL;
     for (size_t i = 0; i < svgElements.size(); i++)
     {
+        shapes.clear();
         int blockId = svgElements[i].id;
         for (size_t j = 0; j < svgElements[i].data.size(); j++)
         {
@@ -249,11 +246,11 @@ void CreateObjects(vector<block<std::string>>& svgElements, std::vector<Shape*>&
                 {
                     int x = 0, y = 0, width = 0, height = 0;
                     std::string fill = "";
-                    if (tokens.size() == 11 && StringToInt(tokens[2],x) && StringToInt(tokens[4],y) && StringToInt(tokens[6],width) && StringToInt(tokens[8],height))
+                    if (tokens.size() == 11 && StringToInt(tokens[2], x) && StringToInt(tokens[4], y) && StringToInt(tokens[6], width) && StringToInt(tokens[8], height))
                     {
                         fill = tokens[10];
-                        shape = new Rectangle("rectangle",x, y, width, height, fill);
-                        objects.push_back(shape);
+                        shape = new Rectangle("rectangle", x, y, width, height, fill);
+                        shapes.push_back(shape);
                     }
                 }
                 else if (tokens[0] == "circle")
@@ -264,41 +261,56 @@ void CreateObjects(vector<block<std::string>>& svgElements, std::vector<Shape*>&
                     {
                         fill = tokens[8];
                         shape = new Circle("circle",cx, cy,  r, fill);
-                        objects.push_back(shape);
+                        shapes.push_back(shape);
                     }
                 }
             }
             
         }
 
+        objects.push_back({ shapes,svgElements[i].id });
     }
 }
+
 int main()
 {
-    //Engine engine;
-    //engine.Run();
+    Engine engine;
+    engine.Run();
 
-    vector<block<std::string>> file;
-    vector<block<std::string>> svg;
-    vector<Shape*> shapes;
-    string path = "./WorkingFiles/figures.svg";
+    //vector<block<std::string>> file;
+    //vector<block<std::string>> svg;
+    //vector<block<Shape*>> shapes;
+    //string path = "./WorkingFiles/figures.svg";
 
-    try
-    {
-        DataExtraction(file,path);
-    }
-    catch (std::string ms)
-    {
-        cout << ms << endl;
-    }
-    ExtractSvg(file, svg);
-
-    CreateObjects(svg, shapes);
-    for (size_t i = 0; i < shapes.size(); i++)
-    {
-        cout << shapes[i]->ToStringPrint() << endl;
-    }
-   
+    //try
+    //{
+    //    DataExtraction(file,path);
+    //}
+    //catch (std::string ms)
+    //{
+    //    cout << ms << endl;
+    //}
+    //ExtractSvg(file, svg);
+    //for (size_t i = 0; i < file.size(); i++)
+    //{
+    //    if (file[i].id != -1)
+    //    {
+    //        cout << file[i].id << endl;
+    //        cout << Print(file[i].data);
+    //    }
+    //}
+    //CreateObjects(svg, shapes);
+    //for (size_t i = 0; i < shapes.size(); i++)
+    //{
+    //    //cout << shapes[i].id << endl;
+    //    for (size_t j = 0; j < shapes[i].data.size(); j++)
+    //    {
+    //        shapes[i].data[j]->Translate(10, 500);
+    //        cout << shapes[i].id << endl;
+    //        cout << shapes[i].data[j]->ToStringFile() << endl;
+    //    }
+    //}
+    //
     
 	return 0;
 }

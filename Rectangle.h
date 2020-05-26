@@ -9,6 +9,7 @@ public:
     // Inherited via Shape
     virtual std::string ToStringPrint() override;
     virtual std::string ToStringFile() override;
+    virtual void Translate(int, int) override;
 
 private:
     std::string name;
@@ -17,5 +18,6 @@ private:
     int width;
     int height;
     std::string fill;
+
 };
 

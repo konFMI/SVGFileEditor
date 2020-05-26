@@ -7,6 +7,7 @@ class Shape
 		{
 
 		}
+		virtual void Translate(int, int) = 0;
 		virtual std::string ToStringPrint() = 0;
 		virtual std::string ToStringFile() = 0;
 };

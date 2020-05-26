@@ -227,6 +227,10 @@ void Engine::Run()
         catch (string ms)
         {
             std::cout << ms << std::endl;
+            if (ms == "Exiting the program...")
+            {
+                break;
+            }
         }
     }
 

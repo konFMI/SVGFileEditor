@@ -25,6 +25,7 @@ public:
 	string Within(std::vector<std::string>&);
 private:
 	WorkingFile* currentFile;
-	Repository<WorkingFile> file;
+	std::vector<WorkingFile> files;
+
 };
 
