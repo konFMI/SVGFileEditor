@@ -22,5 +22,17 @@ std::string Circle::ToStringPrint()
 
 std::string Circle::ToStringFile()
 {
-    return std::string();
+    std::string output = "";
+    output += "<circle cx=\"" + std::to_string(cx) + "\" cy=\"" + std::to_string(cy) + " r=\"" + std::to_string(r) + "\" fill=\"" + fill + "\" />";
+    return output;
 }
+
+void Circle::Translate(int vertical, int horizontal)
+{
+    if ((cx + horizontal) >= 0 && (cy + vertical) >= 0)
+    {
+        cx += horizontal;
+        cy += vertical;
+    }
+}
+

@@ -24,5 +24,16 @@ std::string Rectangle::ToStringPrint()
 
 std::string Rectangle::ToStringFile()
 {
-    return std::string();
+    std::string output = "";
+    output += "<rect x=\"" + std::to_string(x) + "\" y=\"" + std::to_string(y) + "\" width=\"" + std::to_string(width) + "\" height=\"" + std::to_string(height) + "\" fill=\"" + fill + "\" />";
+    return output;
+}
+
+void Rectangle::Translate(int vertical, int horizontal)
+{
+    if ((x + horizontal) >= 0 && (y+vertical) >= 0)
+    {
+        x += horizontal;
+        y += vertical;
+    }
 }

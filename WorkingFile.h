@@ -1,19 +1,43 @@
 #pragma once
 #include <string>
-#include"Shape.h"
-#include"Repository.h"
+#include <vector>
+#include<fstream>
+#include "Shape.h"
+#include "Repository.h"
+#include"Rectangle.h"
+#include"Circle.h"
+
+template<class T>
+struct block
+{
+	std::vector<T> data;
+	int id;
+};
+
 class WorkingFile
 {
 public:
 	WorkingFile();
 	std::string Open(std::string);
-	void Save();
-	void SaveAs(std::string);
+	std::string Save();
+	std::string SaveAs(std::string);
+    std::vector<block<Shape*>>& GetShapes();
+    std::string FileName();
 
-	Repository<Shape>* GetShapes();
+	
 private:
 	std::string path;
-	Repository<Shape> shapes;
+    std::vector<block<std::string>> file;
+    std::vector < block<Shape*>> shapes;
 
+    void SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters);
+    bool StringToInt(std::string& strInt, int& integer);
+    std::string Print(std::vector<std::string> collection);
+    bool ContainsElement(std::string& text, std::string element);
+    void DataExtraction(std::vector<block<std::string>>& fileLines, std::string& path);
+    void DataSaving(std::vector<block<std::string>>& fileLines, std::string path);
+    void ExtractSvg(std::vector<block<std::string>>& source, std::vector<block<std::string>>& svg);
+    void CreateObjects(std::vector<block<std::string>>& svgElements, std::vector<block<Shape*>>& objects);
+    void SynchronizeFileAndShapes();
 };
 
