@@ -3,7 +3,6 @@
 #include <vector>
 #include<fstream>
 #include "Shape.h"
-#include "Repository.h"
 #include"Rectangle.h"
 #include"Circle.h"
 
@@ -13,7 +12,7 @@ struct block
 	std::vector<T> data;
 	int id;
 };
-
+bool StringToInt(std::string& strInt, int& integer);
 class WorkingFile
 {
 public:
@@ -30,9 +29,9 @@ private:
 	std::string path;
     std::vector<block<std::string>> file;
     std::vector < block<Shape*>> shapes;
+    int localId;
 
     void SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters);
-    bool StringToInt(std::string& strInt, int& integer);
     std::string Print(std::vector<std::string> collection);
     bool ContainsElement(std::string& text, std::string element);
     void DataExtraction(std::vector<block<std::string>>& fileLines, std::string& path);

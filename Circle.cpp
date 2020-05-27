@@ -36,3 +36,24 @@ void Circle::Translate(int vertical, int horizontal)
     }
 }
 
+bool Circle::WithinCircle(int cx, int cy, int r)
+{
+    double xd = cx - this->cx;
+    double yd = cy - this->cy;
+    double distance = sqrt(xd * xd + yd * yd);
+    if (distance + this->r <= r)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Circle::WithinRectangle(int x,int y,int width ,int height)
+{
+    bool condition = (x <= (cx - r) && (cx + r) <= (x + width)) && (y <= (cy - r) && (cy + r) <= (y + height));
+    return condition;
+}
+

@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include"Shape.h"
-#include"Repository.h"
 #include"WorkingFile.h"
 
 using std::string;
@@ -26,7 +25,6 @@ public:
 private:
 	WorkingFile* currentFile;
 	std::vector<WorkingFile> files;
-	std::string CreateShape(std::vector<std::string> parameters);
 
 };
 
