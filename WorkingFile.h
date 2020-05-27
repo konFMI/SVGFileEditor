@@ -18,6 +18,7 @@ class WorkingFile
 {
 public:
 	WorkingFile();
+    std::string CreateShape(std::vector<std::string> parameters);
 	std::string Open(std::string);
 	std::string Save();
 	std::string SaveAs(std::string);

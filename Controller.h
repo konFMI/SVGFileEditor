@@ -26,6 +26,7 @@ public:
 private:
 	WorkingFile* currentFile;
 	std::vector<WorkingFile> files;
+	std::string CreateShape(std::vector<std::string> parameters);
 
 };
 
