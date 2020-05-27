@@ -56,7 +56,7 @@ void Engine::Run()
                     {
                         message = controller.Print();
                     }
-                    else if (command == "create")
+                    else if (command == "create" && size > 1)
                     {
                         for (size_t i = 0; i < tokens.size() - 1; i++)
                         {

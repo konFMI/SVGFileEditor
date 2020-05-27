@@ -277,40 +277,7 @@ int main()
     Engine engine;
     engine.Run();
 
-    //vector<block<std::string>> file;
-    //vector<block<std::string>> svg;
-    //vector<block<Shape*>> shapes;
-    //string path = "./WorkingFiles/figures.svg";
-
-    //try
-    //{
-    //    DataExtraction(file,path);
-    //}
-    //catch (std::string ms)
-    //{
-    //    cout << ms << endl;
-    //}
-    //ExtractSvg(file, svg);
-    //for (size_t i = 0; i < file.size(); i++)
-    //{
-    //    if (file[i].id != -1)
-    //    {
-    //        cout << file[i].id << endl;
-    //        cout << Print(file[i].data);
-    //    }
-    //}
-    //CreateObjects(svg, shapes);
-    //for (size_t i = 0; i < shapes.size(); i++)
-    //{
-    //    //cout << shapes[i].id << endl;
-    //    for (size_t j = 0; j < shapes[i].data.size(); j++)
-    //    {
-    //        shapes[i].data[j]->Translate(10, 500);
-    //        cout << shapes[i].id << endl;
-    //        cout << shapes[i].data[j]->ToStringFile() << endl;
-    //    }
-    //}
-    //
+    
     
 	return 0;
 }

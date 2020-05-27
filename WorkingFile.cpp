@@ -200,7 +200,7 @@ void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std
     }
     else
     {
-        throw std::string("Unable to open file.");
+        //throw std::string("Unable to open file.");
     }
 
     return;
@@ -291,5 +291,77 @@ void WorkingFile::CreateObjects(std::vector<block<std::string>>& svgElements, st
 
 void WorkingFile::SynchronizeFileAndShapes()
 {
-}
+    int counter = 0;
+    for (size_t i = 0; i < shapes.size(); i++)
+    {
+        counter = shapes[i].id;
+        size_t j = 0;
+        std::vector<std::string> data;
+        for (size_t k = 0; k < shapes[i].data.size(); k++)
+        {
+            data.push_back(shapes[i].data[k]->ToStringFile());
+        }
+        while (j < file.size() && file[j].id != counter)
+        {
+            j++;
+        }
+        if (file[j].id == counter)
+        {
+            file[j].data.clear();
+            
+            file[j].data = data;
+        }
+        else
+        {
+            size_t lastSVGTagIndex = 0;
+            for (size_t k = 0; i < file.size(); i++)
+            {
+                if (file[k].data.size() == 1 && file[k].data[0] == "SVGSTART")
+                {
+                    lastSVGTagIndex = k+2;
+                }
+            }
+           
+            file.push_back({ std::vector<std::string>{},0 });
+            for (size_t k = file.size()-1; k > lastSVGTagIndex; k--)
+            {
+                file[k] = file[k - 1];
+            }
+            file[lastSVGTagIndex + 1].data = data;
+            file[lastSVGTagIndex + 1].id = counter;
 
+        }
+    }
+}
+std::string WorkingFile::CreateShape(std::vector<std::string> parameters)
+{
+    Shape* shape = NULL;
+    std::string shapeName = parameters[0];
+    if (shapeName == "rectangle" && parameters.size() == 6)
+    {
+        int x = 0, y = 0, width = 0, height = 0;
+        std::string fill = "";
+        if (parameters.size() == 11 && StringToInt(parameters[2], x) && StringToInt(parameters[4], y) && StringToInt(parameters[6], width) && StringToInt(parameters[8], height))
+        {
+            fill = parameters[10];
+            shape = new Rectangle("rectangle", x, y, width, height, fill);
+            shapes.push_back({ std::vector<Shape*>{shape},shapes[shapes.size()-1].id+1});
+        }
+        else if (parameters[0] == "circle")
+        {
+            int cx = 0, cy = 0, r = 0;
+            std::string fill = "";
+            if (StringToInt(parameters[2], cx) && StringToInt(parameters[4], cy) && StringToInt(parameters[6], r))
+            {
+                fill = parameters[8];
+                shape = new Circle("circle", cx, cy, r, fill);
+                shapes.push_back({ std::vector<Shape*>{shape}, shapes[shapes.size() - 1].id + 1 });
+            }
+        }
+        else
+        {
+            throw std::string("Not supported shape.");
+        }
+    }
+    return "Successfully created a " + parameters[0];
+}

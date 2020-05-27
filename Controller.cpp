@@ -81,7 +81,9 @@ string Controller::Print()
 
 string Controller::Create(std::vector<std::string> tokens)
 {
-	return "";
+	
+	std::string output = currentFile->CreateShape(tokens);
+	return output;
 }
 
 string Controller::Erase(int)
@@ -141,3 +143,7 @@ string Controller::Within(std::vector<string>&)
 {
 	return string();
 }
+
+
+
+
