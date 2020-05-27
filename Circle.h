@@ -4,7 +4,7 @@ class Circle :
     public Shape
 {
 public:
-    Circle(std::string,int, int, int, std::string);
+    Circle(std::string name, int cx, int cy, int r, std::string fill);
 
     // Inherited via Shape
     virtual std::string ToStringPrint() override;
@@ -20,9 +20,9 @@ private:
 
 
     // Inherited via Shape
-    virtual bool WithinCircle(int,int,int) override;
+    virtual bool WithinCircle(int cx, int cy, int r) override;
 
-    virtual bool WithinRectangle(int,int,int,int) override;
+    virtual bool WithinRectangle(int x, int y, int width, int height) override;
 
 };
 

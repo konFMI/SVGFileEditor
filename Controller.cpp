@@ -9,9 +9,12 @@ Controller::Controller()
 string Controller::Open(string path)
 {
 	WorkingFile* workingFile = new WorkingFile();
+
 	std::string message = workingFile->Open(path);
+
 	files.push_back(*workingFile);
 	currentFile = workingFile;
+
 	return message;
 }
 
@@ -242,6 +245,137 @@ string Controller::Within(std::vector<string>& params)
 
 	return output;
 }
+
+string Controller::Translate(std::vector<std::string> tokens)
+{
+	std::string message = "";
+	size_t size = tokens.size();
+	std::vector<string> firstParameter, secondParameter;
+	int vertical = 0, horizontal = 0, shapeIndex = -1;
+
+	switch (size)
+	{
+	case 2:
+		SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
+		if (firstParameter.size() == 2)
+		{
+			if (firstParameter[0] == "vertical" && StringToInt(firstParameter[1],vertical))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else if (firstParameter[0] == "horizontal" && StringToInt(firstParameter[1], horizontal))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else
+			{
+				message = "Invalid input.";
+			}
+
+
+		}
+		else
+		{
+			message = "Invalid input.";
+
+		}
+		break;
+	case 3:
+		SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
+		SplitInput(tokens[2], secondParameter, std::vector<char>{'='});
+
+		if (firstParameter.size() == 2)
+		{
+			if (firstParameter[0] == "vertical" && secondParameter.size() == 2 && secondParameter[0] == "horizontal" && StringToInt(firstParameter[1], vertical) && StringToInt(secondParameter[1], horizontal))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else if (firstParameter[0] == "horizontal" && secondParameter.size() == 2 && secondParameter[0] == "vertical" && StringToInt(firstParameter[1], horizontal) && StringToInt(secondParameter[1], vertical))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else if (firstParameter[0] == "vertical" && secondParameter.size() == 1 && StringToInt(firstParameter[1], vertical) && StringToInt(secondParameter[0], shapeIndex))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else if (firstParameter[0] == "horizontal" && secondParameter.size() == 1 && StringToInt(firstParameter[1], horizontal) && StringToInt(secondParameter[0], shapeIndex))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else
+			{
+				message = "Invalid input.";
+			}
+		}
+		else
+		{
+			message = "Invalid input.";
+		}
+		break;
+	case 4:
+		SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
+		SplitInput(tokens[2], secondParameter, std::vector<char>{'='});
+		if (firstParameter.size() == 2 && secondParameter.size() == 2 && StringToInt(tokens[3], shapeIndex))
+		{
+			if (firstParameter[0] == "vertical" && secondParameter[0] == "horizontal"  && StringToInt(firstParameter[1], vertical) && StringToInt(secondParameter[1], horizontal))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else if (firstParameter[0] == "horizontal" && secondParameter[0] == "vertical" && StringToInt(firstParameter[1], horizontal) && StringToInt(secondParameter[1], vertical))
+			{
+				message = Translate(vertical, horizontal, shapeIndex);
+			}
+			else
+			{
+				message = "Invalid input.";
+			}
+		}
+		else
+		{
+			message = "Invalid input.";
+		}
+		break;
+	default:
+		message = "Invalid input.";
+		break;
+	}
+
+	return message;
+}
+
+void Controller::SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters)
+{
+	char* memblock = &*input.begin();
+	std::string temp = "";
+
+	for (size_t i = 0; i < input.length(); i++)
+	{
+		bool condition = false;
+
+		for (size_t j = 0; j < delimiters.size(); j++)
+		{
+			condition = condition || (memblock[i] == delimiters[j]);
+		}
+		if (condition)
+		{
+			if (temp != "")
+			{
+				tokens.push_back(temp);
+				temp = "";
+			}
+		}
+		else
+		{
+			temp += memblock[i];
+		}
+
+	}
+	if (temp != "")
+	{
+		tokens.push_back(temp);
+	}
+}
+
 
 
 

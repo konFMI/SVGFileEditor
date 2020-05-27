@@ -1,5 +1,6 @@
 #pragma once
 #include "Controller.h"
+
 class Engine
 {
 public:
@@ -7,7 +8,7 @@ public:
 	void Run();
 private:
 	Controller controller;
-	void SplitInput(std::string&, std::vector<std::string>&, std::vector<char>);
-	int StringToInt(std::string& width);
+	void SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters);
+	int StringToInt(std::string& input);
 };
 
