@@ -7,21 +7,24 @@ WorkingFile::WorkingFile()
     shapes.clear();
     localId = 100;
 }
+
 std::string WorkingFile::Open(std::string path)
 {
-    localId = 100;
+    localId = 100; 
     this->path = path;
 	std::string message ="\"" + path + "\" has been opened.";
     DataExtraction(file, path);
     std::vector<block<std::string>> svgElements;
     ExtractSvg(file, svgElements);
     CreateObjects(svgElements, shapes);
+
 	return message;
 }
 std::string WorkingFile::Save()
 {
     SynchronizeFileAndShapes();
     DataSaving(file, path);
+
     return "Successfully  save \"" + path + "\"";
 }
 std::string WorkingFile::SaveAs(std::string newPath)
@@ -31,6 +34,40 @@ std::string WorkingFile::SaveAs(std::string newPath)
 
     return "Successfully saved \"" + newPath + "\"";
 }
+
+std::string WorkingFile::CreateShape(std::vector<std::string> parameters)
+{
+    Shape* shape = NULL;
+    std::string shapeName = parameters[0];
+    if (shapeName == "rectangle" && parameters.size() == 6)
+    {
+        int x = 0, y = 0, width = 0, height = 0;
+        std::string fill = "";
+        if (StringToInt(parameters[1], x) && StringToInt(parameters[2], y) && StringToInt(parameters[3], width) && StringToInt(parameters[4], height))
+        {
+            fill = parameters[5];
+            shape = new Rectangle("rectangle", x, y, width, height, fill);
+            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
+        }
+    }
+    else if (parameters[0] == "circle" && parameters.size() == 5)
+    {
+        int cx = 0, cy = 0, r = 0;
+        std::string fill = "";
+        if (StringToInt(parameters[1], cx) && StringToInt(parameters[2], cy) && StringToInt(parameters[3], r))
+        {
+            fill = parameters[4];
+            shape = new Circle("circle", cx, cy, r, fill);
+            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
+        }
+    }
+    else
+    {
+        throw std::string("Not supported shape.");
+    }
+    
+    return "Successfully created a " + parameters[0];
+}
 std::vector<block<Shape*>>& WorkingFile::GetShapes()
 {
     return shapes;
@@ -39,6 +76,7 @@ std::string WorkingFile::FileName()
 {
     return path;
 }
+
 void WorkingFile::SplitInput(std::string& input, std::vector<std::string>& tokens, std::vector<char> delimiters)
 {
     char* memblock = &*input.begin();
@@ -84,46 +122,18 @@ std::string WorkingFile::Print(std::vector<std::string> collection)
         return output;
     }
 }
-bool WorkingFile::ContainsElement(std::string& text, std::string element)
-{
-    bool contains = false;
 
-    if (text.length() > 0)
-    {
-        char* memblock = &*text.begin();
-        for (size_t i = 0; i < text.length() - element.length() + 1; i++)
-        {
-            for (size_t j = 0; j < element.length(); j++)
-            {
-                if (memblock[i + j] == element[j])
-                {
-                    contains = true;
-                }
-                else
-                {
-                    contains = false;
-                    break;
-                }
-            }
-            if (contains)
-            {
-                break;
-            }
-        }
-    }
-    return contains;
-}
-void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std::string& path)
+void WorkingFile::DataExtraction(std::vector<block<std::string>>& file, std::string& path)
 {
-    std::ifstream file(path);
+    std::ifstream svgFile(path);
 
-    if (file.is_open())
+    if (svgFile.is_open())
     {
         std::string line;
         std::vector<std::string> svgPart, notSvgLines;
         int fileLocation = 0;
 
-        while (std::getline(file, line))
+        while (std::getline(svgFile, line))
         {
             bool svgOpenTag = false;
             bool svgCloseTag = false;
@@ -136,13 +146,13 @@ void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std
                 {
                     if (!notSvgLines.empty())
                     {
-                        fileLines.push_back({ std::vector<std::string>{"NOTSVGSTART"},-1 });
-                        fileLines.push_back({ notSvgLines,fileLocation });
+                        file.push_back({ std::vector<std::string>{"NOTSVGSTART"},-1 });
+                        file.push_back({ notSvgLines,fileLocation });
                         fileLocation++;
-                        fileLines.push_back({ std::vector<std::string>{"NOTSVGEND"},-1 });
+                        file.push_back({ std::vector<std::string>{"NOTSVGEND"},-1 });
                         notSvgLines.clear();
                     }
-                    while (getline(file, line))
+                    while (getline(svgFile, line))
                     {
                         svgCloseTag = ContainsElement(line, "</svg>");
                         if (svgCloseTag)
@@ -162,10 +172,10 @@ void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std
 
                     if (!svgPart.empty())
                     {
-                        fileLines.push_back({ std::vector<std::string>{"SVGSTART"},-1 });
-                        fileLines.push_back({ svgPart,fileLocation });
+                        file.push_back({ std::vector<std::string>{"SVGSTART"},-1 });
+                        file.push_back({ svgPart,fileLocation });
                         fileLocation++;
-                        fileLines.push_back({ std::vector<std::string>{"SVGEND"},-1 });
+                        file.push_back({ std::vector<std::string>{"SVGEND"},-1 });
                         svgPart.clear();
                     }
                 }
@@ -180,7 +190,7 @@ void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std
             }
         }
 
-        file.close();
+        svgFile.close();
     }
     else
     {
@@ -189,42 +199,43 @@ void WorkingFile::DataExtraction(std::vector<block<std::string>>& fileLines, std
 
     return;
 }
-void WorkingFile::DataSaving(std::vector<block<std::string>>& fileLines, std::string path)
+void WorkingFile::DataSaving(std::vector<block<std::string>>& file, std::string path)
 {
-    std::ofstream file(path, std::ios::trunc);
+    std::ofstream svgFile(path, std::ios::trunc);
 
-    if (file.is_open())
+    if (svgFile.is_open())
     {
-        for (size_t i = 0; i < fileLines.size(); i++)
+        for (size_t i = 0; i < file.size(); i++)
         {
-            if (fileLines[i].id == -1 && fileLines[i].data[0] == "SVGSTART" && (i + 2) < fileLines.size())
+            if (file[i].id == -1 && file[i].data[0] == "SVGSTART" && (i + 2) < file.size())
             {
                 i += 1;
-                file << "<svg>\n";
-                file << Print(fileLines[i].data);
+                svgFile << "<svg>\n";
+                svgFile << Print(file[i].data);
             }
-            else if (fileLines[i].id == -1 && fileLines[i].data[0] == "SVGEND")
+            else if (file[i].id == -1 && file[i].data[0] == "SVGEND")
             {
-                file << "</svg>\n";
+                svgFile << "</svg>\n";
             }
-            else if (fileLines[i].id == -1 && fileLines[i].data[0] == "NOTSVGSTART" && (i + 2) < fileLines.size())
+            else if (file[i].id == -1 && file[i].data[0] == "NOTSVGSTART" && (i + 2) < file.size())
             {
                 i += 1;
-                file << Print(fileLines[i].data);
+                svgFile << Print(file[i].data);
             }
         }
-        file.close();
+        svgFile.close();
     }
 }
-void WorkingFile::ExtractSvg(std::vector<block<std::string>>& source, std::vector<block<std::string>>& svg)
+
+void WorkingFile::ExtractSvg(std::vector<block<std::string>>& file, std::vector<block<std::string>>& svgElements)
 {
-    for (size_t i = 0; i < source.size(); i++)
+    for (size_t i = 0; i < file.size(); i++)
     {
-        if (source[i].id == -1 && source[i].data[0] == "SVGSTART" && (i + 1) < source.size())
+        if (file[i].id == -1 && file[i].data[0] == "SVGSTART" && (i + 1) < file.size())
         {
             i++;
-            block<std::string> data = source[i];
-            svg.push_back(data);
+            block<std::string> data = file[i];
+            svgElements.push_back(data);
         }
     }
 }
@@ -317,40 +328,36 @@ void WorkingFile::SynchronizeFileAndShapes()
         }
     }
 }
-std::string WorkingFile::CreateShape(std::vector<std::string> parameters)
-{
-    Shape* shape = NULL;
-    std::string shapeName = parameters[0];
-    if (shapeName == "rectangle" && parameters.size() == 6)
-    {
-        int x = 0, y = 0, width = 0, height = 0;
-        std::string fill = "";
-        if (StringToInt(parameters[1], x) && StringToInt(parameters[2], y) && StringToInt(parameters[3], width) && StringToInt(parameters[4], height))
-        {
-            fill = parameters[5];
-            shape = new Rectangle("rectangle", x, y, width, height, fill);
-            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
-        }
-    }
-    else if (parameters[0] == "circle" && parameters.size() == 5)
-    {
-        int cx = 0, cy = 0, r = 0;
-        std::string fill = "";
-        if (StringToInt(parameters[1], cx) && StringToInt(parameters[2], cy) && StringToInt(parameters[3], r))
-        {
-            fill = parameters[4];
-            shape = new Circle("circle", cx, cy, r, fill);
-            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
-        }
-    }
-    else
-    {
-        throw std::string("Not supported shape.");
-    }
-    
-    return "Successfully created a " + parameters[0];
-}
 
+bool WorkingFile::ContainsElement(std::string& text, std::string element)
+{
+    bool contains = false;
+
+    if (text.length() > 0)
+    {
+        char* memblock = &*text.begin();
+        for (size_t i = 0; i < text.length() - element.length() + 1; i++)
+        {
+            for (size_t j = 0; j < element.length(); j++)
+            {
+                if (memblock[i + j] == element[j])
+                {
+                    contains = true;
+                }
+                else
+                {
+                    contains = false;
+                    break;
+                }
+            }
+            if (contains)
+            {
+                break;
+            }
+        }
+    }
+    return contains;
+}
 bool StringToInt(std::string& strInt, int& integer)
 {
     char* memblock = &*strInt.begin();

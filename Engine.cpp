@@ -18,6 +18,7 @@ void Engine::Run()
             std::getline(std::cin, input);
             tokens.clear();
             message = "";
+
             if (input.length() > 0)
             {
                 SplitInput(input, tokens, std::vector<char > {' ', '\t', '\n'});
@@ -58,6 +59,7 @@ void Engine::Run()
                     }
                     else if (command == "create" && size > 1)
                     {
+                        // Removing the "create" from the collection.
                         for (size_t i = 0; i < tokens.size() - 1; i++)
                         {
                             tokens[i] = tokens[i + 1];
@@ -73,6 +75,7 @@ void Engine::Run()
                     }
                     else if (command == "within")
                     {
+                        //Removing the "withing" from the collection.
                         for (size_t i = 0; i < tokens.size() - 1; i++)
                         {
                             tokens[i] = tokens[i + 1];
@@ -89,123 +92,7 @@ void Engine::Run()
                     }
                     else if (command == "translate" && (size == 2 || size == 3 || size == 4))
                     {
-                        std::vector<string> firstParameter, secondParameter;
-                        int vertical = 0, horizontal = 0, shapeIndex = -1;
-                        switch (size)
-                        {
-                        case 2:
-                            SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
-                            if (firstParameter.size() == 2)
-                            {
-                                if (firstParameter[0] == "vertical")
-                                {
-                                    vertical = StringToInt(firstParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-                                }
-                                else if (firstParameter[0] == "horizontal")
-                                {
-                                    horizontal = StringToInt(firstParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-                                }
-                                else
-                                {
-                                    message = "Invalid input.";
-                                }
-
-
-                            }
-                            else
-                            {
-                                message = "Invalid input.";
-
-                            }
-                            break;
-                        case 3:
-                            SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
-                            SplitInput(tokens[2], secondParameter, std::vector<char>{'='});
-
-                            if (firstParameter.size() == 2)
-                            {
-                                if (firstParameter[0] == "vertical" && secondParameter.size() == 2 && secondParameter[0] == "horizontal")
-                                {
-                                    vertical = StringToInt(firstParameter[1]);
-                                    horizontal = StringToInt(secondParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-
-                                }
-                                else if (firstParameter[0] == "horizontal" && secondParameter.size() == 2 && secondParameter[0] == "vertical")
-                                {
-                                    horizontal = StringToInt(firstParameter[1]);
-                                    vertical = StringToInt(secondParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-                                }
-                                else if (firstParameter[0] == "vertical" && secondParameter.size() == 1)
-                                {
-                                    vertical = StringToInt(firstParameter[1]);
-                                    shapeIndex = StringToInt(secondParameter[0]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-
-                                }
-                                else if (firstParameter[0] == "horizontal" && secondParameter.size() == 1)
-                                {
-                                    horizontal = StringToInt(firstParameter[1]);
-                                    shapeIndex = StringToInt(secondParameter[0]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-                                }
-
-                                else
-                                {
-                                    message = "Invalid input.";
-
-                                }
-                            }
-                            else
-                            {
-                                message = "Invalid input.";
-
-                            }
-                            break;
-                        case 4:
-                            SplitInput(tokens[1], firstParameter, std::vector<char>{'='});
-                            SplitInput(tokens[2], secondParameter, std::vector<char>{'='});
-                            shapeIndex = StringToInt(tokens[3]);
-                            if (firstParameter.size() == 2 && secondParameter.size() == 2)
-                            {
-                                if (firstParameter[0] == "vertical" && secondParameter[0] == "horizontal")
-                                {
-                                    vertical = StringToInt(firstParameter[1]);
-                                    horizontal = StringToInt(secondParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-
-                                }
-                                else if (firstParameter[0] == "horizontal" && secondParameter[0] == "vertical")
-                                {
-                                    horizontal = StringToInt(firstParameter[1]);
-                                    vertical = StringToInt(secondParameter[1]);
-                                    message = controller.Translate(vertical, horizontal, shapeIndex);
-
-                                }
-                                else
-                                {
-                                    message = "Invalid input.";
-
-                                }
-                            }
-                            else
-                            {
-                                message = "Invalid input.";
-
-                            }
-                            break;
-                        default:
-                            message = "Invalid input.";
-                            break;
-                        }
+                        message = controller.Translate(tokens);
                     }
                     else if (command == "clear" && size == 1)
                     {
@@ -235,6 +122,7 @@ void Engine::Run()
     }
 
 }
+
 void Engine::SplitInput(std::string& input, std::vector<std::string>& tokens,std::vector<char> delimiters)
 {
     char* memblock = &*input.begin();
@@ -267,6 +155,7 @@ void Engine::SplitInput(std::string& input, std::vector<std::string>& tokens,std
         tokens.push_back(temp);
     }
 }
+
 int Engine::StringToInt(std::string& input)
 {
     int num = 0;
