@@ -144,7 +144,7 @@ void Engine::Run()
                                 else if (firstParameter[0] == "vertical" && secondParameter.size() == 1)
                                 {
                                     vertical = StringToInt(firstParameter[1]);
-                                    shapeIndex = StringToInt(secondParameter[1]);
+                                    shapeIndex = StringToInt(secondParameter[0]);
                                     message = controller.Translate(vertical, horizontal, shapeIndex);
 
 
@@ -152,7 +152,7 @@ void Engine::Run()
                                 else if (firstParameter[0] == "horizontal" && secondParameter.size() == 1)
                                 {
                                     horizontal = StringToInt(firstParameter[1]);
-                                    shapeIndex = StringToInt(secondParameter[1]);
+                                    shapeIndex = StringToInt(secondParameter[0]);
                                     message = controller.Translate(vertical, horizontal, shapeIndex);
 
                                 }

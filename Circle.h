@@ -18,5 +18,11 @@ private:
     int r;
     std::string fill;
 
+
+    // Inherited via Shape
+    virtual bool WithinCircle(int,int,int) override;
+
+    virtual bool WithinRectangle(int,int,int,int) override;
+
 };
 

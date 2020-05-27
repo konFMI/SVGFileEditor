@@ -1,5 +1,4 @@
 #include "Controller.h"
-#include"Repository.h"
 
 
 Controller::Controller()
@@ -18,12 +17,28 @@ string Controller::Open(string path)
 
 string Controller::Close()
 {
-	string message = "Closed \"" + currentFile ->FileName() + "\"";
+	string message = "";
+	if (files.size() > 1)
+	{
+		files.pop_back();
+		currentFile = &files[files.size() - 1];
+		message = "Closed \"" + currentFile->FileName() + "\"";
+	}
+	else if(files.size() == 1)
+	{
+		message = "Closed \"" + currentFile->FileName() + "\"";
+		currentFile = NULL;
+		files.pop_back();
+	}
 	return message;
 }
 
 string Controller::Save()
 {
+	if (currentFile->FileName().length() == 0)
+	{
+		throw std::string("The file doesn't have default path. Please use \"saveas\" to provide a path.");
+	}
 	string message = currentFile->Save();
 	return message;
 }
@@ -81,14 +96,49 @@ string Controller::Print()
 
 string Controller::Create(std::vector<std::string> tokens)
 {
-	
+	if (!currentFile)
+	{
+		currentFile = new WorkingFile();
+	}
 	std::string output = currentFile->CreateShape(tokens);
+	if (files.size() > 0)
+	{
+		files.pop_back();
+	}
+
+	files.push_back(*currentFile);
 	return output;
 }
 
-string Controller::Erase(int)
+string Controller::Erase(int position)
 {
-	return string();
+	std::string message = "There is no figure with number " + std::to_string(position);
+	int counter = 1;
+	for (int i = files.size() - 1; i >= 0; i--)
+	{
+		for (int j = 0; j < files[i].GetShapes().size(); j++)
+		{
+			for (int k = 0; k < files[i].GetShapes()[j].data.size(); k++)
+			{
+				if (counter == position)
+				{
+					for (int p = counter - 1; p < files[i].GetShapes()[j].data.size() - 1; p++)
+					{
+						files[i].GetShapes()[j].data[p] = files[i].GetShapes()[j].data[p + 1];
+					}
+					files[i].GetShapes()[j].data.pop_back();
+					message = "Figure with number " + std::to_string(position) + " has been deleted.";
+					return message;
+				}
+				else
+				{
+					counter++;
+				}
+
+			}
+		}
+	}
+	return message;
 }
 
 string Controller::Translate(int vertical, int horizontal,int possition)
@@ -139,9 +189,58 @@ string Controller::Translate(int vertical, int horizontal,int possition)
 	return message;
 }
 
-string Controller::Within(std::vector<string>&)
+string Controller::Within(std::vector<string>& params)
 {
-	return string();
+	std::vector<Shape*> shapesWithin;
+	if (params.size() == 4 && params[0] == "circle")
+	{
+		int x = 0, y = 0, r = 0;
+		if (StringToInt(params[1],x) && StringToInt(params[2], y)&& StringToInt(params[3], r))
+		{
+			for (size_t i = 0; i < files.size(); i++)
+			{
+				
+
+				for (size_t j = 0; j < files[i].GetShapes().size(); j++)
+				{
+					for (size_t k = 0; k < files[i].GetShapes()[j].data.size(); k++)
+					{
+						if (files[i].GetShapes()[j].data[k]->WithinCircle(x,y,r))
+						{
+							shapesWithin.push_back(files[i].GetShapes()[j].data[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (params.size() == 5 && params[0] == "rectangle")
+	{
+		int x = 0, y = 0,width = 0,height = 0;
+		if (StringToInt(params[1], x) && StringToInt(params[2], y) && StringToInt(params[3],width) && StringToInt(params[4],height))
+		{
+			for (size_t i = 0; i < files.size(); i++)
+			{
+				for (size_t j = 0; j < files[i].GetShapes().size(); j++)
+				{
+					for (size_t k = 0; k < files[i].GetShapes()[j].data.size(); k++)
+					{
+						if (files[i].GetShapes()[j].data[k]->WithinRectangle(x, y,width,height))
+						{
+							shapesWithin.push_back(files[i].GetShapes()[j].data[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	std::string output = "";
+	for (size_t i = 0; i < shapesWithin.size(); i++)
+	{
+		output += std::to_string(i) + ". " + shapesWithin[i]->ToStringPrint() + "\n";
+	}
+
+	return output;
 }
 
 

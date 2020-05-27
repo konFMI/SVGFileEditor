@@ -5,9 +5,12 @@ WorkingFile::WorkingFile()
     path = "";
     file.clear();
     shapes.clear();
+    localId = 100;
 }
 std::string WorkingFile::Open(std::string path)
 {
+    localId = 100;
+    this->path = path;
 	std::string message ="\"" + path + "\" has been opened.";
     DataExtraction(file, path);
     std::vector<block<std::string>> svgElements;
@@ -68,25 +71,6 @@ void WorkingFile::SplitInput(std::string& input, std::vector<std::string>& token
     {
         tokens.push_back(temp);
     }
-}
-bool WorkingFile::StringToInt(std::string& strInt, int& integer)
-{
-    char* memblock = &*strInt.begin();
-    int number = 0;
-    for (size_t i = 0; i < strInt.length(); i++)
-    {
-        if (isdigit(memblock[i]))
-        {
-            number *= 10;
-            number += (memblock[i] - '0');
-        }
-        else
-        {
-            return false;
-        }
-    }
-    integer = number;
-    return true;
 }
 std::string WorkingFile::Print(std::vector<std::string> collection)
 {
@@ -341,27 +325,48 @@ std::string WorkingFile::CreateShape(std::vector<std::string> parameters)
     {
         int x = 0, y = 0, width = 0, height = 0;
         std::string fill = "";
-        if (parameters.size() == 11 && StringToInt(parameters[2], x) && StringToInt(parameters[4], y) && StringToInt(parameters[6], width) && StringToInt(parameters[8], height))
+        if (StringToInt(parameters[1], x) && StringToInt(parameters[2], y) && StringToInt(parameters[3], width) && StringToInt(parameters[4], height))
         {
-            fill = parameters[10];
+            fill = parameters[5];
             shape = new Rectangle("rectangle", x, y, width, height, fill);
-            shapes.push_back({ std::vector<Shape*>{shape},shapes[shapes.size()-1].id+1});
+            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
         }
-        else if (parameters[0] == "circle")
+    }
+    else if (parameters[0] == "circle" && parameters.size() == 5)
+    {
+        int cx = 0, cy = 0, r = 0;
+        std::string fill = "";
+        if (StringToInt(parameters[1], cx) && StringToInt(parameters[2], cy) && StringToInt(parameters[3], r))
         {
-            int cx = 0, cy = 0, r = 0;
-            std::string fill = "";
-            if (StringToInt(parameters[2], cx) && StringToInt(parameters[4], cy) && StringToInt(parameters[6], r))
-            {
-                fill = parameters[8];
-                shape = new Circle("circle", cx, cy, r, fill);
-                shapes.push_back({ std::vector<Shape*>{shape}, shapes[shapes.size() - 1].id + 1 });
-            }
+            fill = parameters[4];
+            shape = new Circle("circle", cx, cy, r, fill);
+            shapes.push_back({ std::vector<Shape*>{shape}, localId++ });
+        }
+    }
+    else
+    {
+        throw std::string("Not supported shape.");
+    }
+    
+    return "Successfully created a " + parameters[0];
+}
+
+bool StringToInt(std::string& strInt, int& integer)
+{
+    char* memblock = &*strInt.begin();
+    int number = 0;
+    for (size_t i = 0; i < strInt.length(); i++)
+    {
+        if (isdigit(memblock[i]))
+        {
+            number *= 10;
+            number += (memblock[i] - '0');
         }
         else
         {
-            throw std::string("Not supported shape.");
+            return false;
         }
     }
-    return "Successfully created a " + parameters[0];
+    integer = number;
+    return true;
 }

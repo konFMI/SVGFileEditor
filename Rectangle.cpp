@@ -37,3 +37,17 @@ void Rectangle::Translate(int vertical, int horizontal)
         y += vertical;
     }
 }
+
+bool Rectangle::WithinCircle(int cx, int cy, int r)
+{
+    bool condition = (x <= (cx - r) && (cx + r) <= (x + width)) && (y <= (cy - r) && (cy + r) <= (y + height));
+    return condition;
+}
+
+bool Rectangle::WithinRectangle(int xR, int yR, int widthR, int heightR)
+{
+    bool condition = 
+        (xR <= x && (x + width) < (xR + widthR)) &&
+        (yR < y && (y + height) < (yR + heightR));
+    return condition;
+}
