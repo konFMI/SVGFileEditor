@@ -124,7 +124,7 @@ std::string WorkingFile::Print(std::vector<std::string> collection)
 }
 
 void WorkingFile::DataExtraction(std::vector<block<std::string>>& file, std::string& path)
-{
+{   
     std::ifstream svgFile(path);
 
     if (svgFile.is_open())
