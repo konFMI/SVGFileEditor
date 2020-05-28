@@ -28,8 +28,7 @@ public:
     std::vector<block<Shape*>>& GetShapes();
     std::string FileName();
 
-	
-private:
+public:
 	std::string path;
     std::vector<block<std::string>> file;
     std::vector < block<Shape*>> shapes;
